@@ -6,8 +6,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +28,8 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.tooling.preview.Preview
 import tw.edu.pu.csim.tcyang.canvas.ui.theme.CanvasTheme
+import androidx.compose.runtime.LaunchedEffect
+import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,9 +52,22 @@ fun CanvasScreen(modifier: Modifier = Modifier) {
 
     var CanvasWidth by remember { mutableStateOf( 0f ) }
     var Canvasheight by remember { mutableStateOf( 0f ) }
+    // 小小兵目前的水平位置
+    var minionsX by remember { mutableStateOf(0f) }
+    var minionsY by remember { mutableStateOf(0f) }
+    var gameOver by remember { mutableStateOf(false) }
     // 載入圖片資源 (小小兵)
     val minionsImage: ImageBitmap =
         ImageBitmap.imageResource(R.drawable.minions)
+
+    // 每秒向右移動 1 pixel
+    LaunchedEffect(gameOver) {
+        while (!gameOver) {
+            delay(200L)
+            minionsX += 4.5f
+            minionsY += 7.4f
+        }
+    }
 
     Box(modifier = modifier.fillMaxSize()){
         Canvas(modifier = modifier.fillMaxSize()){
@@ -77,23 +94,29 @@ fun CanvasScreen(modifier: Modifier = Modifier) {
             // size.height：畫布的總高度（Float)
             drawLine(
                 Color.Red,
-                Offset(300f, 400f),
+                Offset(200f, 800f),
                 Offset(size.width, size.height),
-                strokeWidth = 4f
-
+                strokeWidth = 10f
             )
+
             //取得小小兵圖檔的寬度與高度
             val minionsWidth = minionsImage.width
             val minionsHeight = minionsImage.height
             // 置中公式：(畫布寬高 - 圖片寬高) / 2f
-            val offsetX = (size.width - minionsWidth) / 2f
-            val offsetY = (size.height - minionsHeight) / 2f
-            // 將畫布起點移至置中位置後畫圖
-            translate(offsetX, offsetY) {
+            // 置中公式
+            translate(minionsX, minionsY) {
                 drawImage(minionsImage)
             }
-
         }
-        Text("畫布寬度 $CanvasWidth, 長度 $Canvasheight")
+        Column {
+            Text("畫布寬度 $CanvasWidth, 長度 $Canvasheight")
+            Button(onClick = {gameOver = !gameOver}) {
+                if (gameOver){
+                    Text("繼續遊戲")
+                }else{
+                    Text("停止遊戲")
+                }
+            }
+        }
     }
 }
