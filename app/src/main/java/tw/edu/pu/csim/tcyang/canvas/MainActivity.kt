@@ -51,7 +51,7 @@ class MainActivity : ComponentActivity() {
 fun CanvasScreen(modifier: Modifier = Modifier) {
 
     var CanvasWidth by remember { mutableStateOf( 0f ) }
-    var Canvasheight by remember { mutableStateOf( 0f ) }
+    var CanvasHeight by remember { mutableStateOf( 0f ) }
     // 小小兵目前的水平位置
     var minionsX by remember { mutableStateOf(0f) }
     var minionsY by remember { mutableStateOf(0f) }
@@ -63,9 +63,19 @@ fun CanvasScreen(modifier: Modifier = Modifier) {
     // 每秒向右移動 1 pixel
     LaunchedEffect(gameOver) {
         while (!gameOver) {
-            delay(200L)
+            delay(1L)
+
             minionsX += 4.5f
             minionsY += 7.4f
+
+            // 當圖片的 X、Y 都超過畫布邊界
+            if (minionsX >= CanvasWidth &&
+                minionsY >= CanvasHeight) {
+
+                // 回到左上角
+                minionsX = 0f
+                minionsY = 0f
+            }
         }
     }
 
@@ -87,7 +97,7 @@ fun CanvasScreen(modifier: Modifier = Modifier) {
             )
 
             CanvasWidth = size.width
-            Canvasheight = size.height
+            CanvasHeight = size.height
 
             // 繪製紅色的線， 從 (200,800) 畫到右下角, 線條粗細 10
             // size.width：畫布的總寬度（Float）
@@ -109,7 +119,7 @@ fun CanvasScreen(modifier: Modifier = Modifier) {
             }
         }
         Column {
-            Text("畫布寬度 $CanvasWidth, 長度 $Canvasheight")
+            Text("畫布寬度 $CanvasWidth, 長度 $CanvasHeight")
             Button(onClick = {gameOver = !gameOver}) {
                 if (gameOver){
                     Text("繼續遊戲")
